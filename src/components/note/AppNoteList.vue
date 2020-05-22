@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import AppNote from "./AppNote.vue";
 import AppTodoList from "../todo/AppTodoList.vue";
 import { INote } from "@/interfaces/INote";

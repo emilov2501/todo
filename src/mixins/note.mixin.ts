@@ -3,7 +3,6 @@ import { Component, Vue } from "vue-property-decorator";
 import LocalStorage from "@/utils/LocalStorage";
 import { BACKUP_NOTE_LIST } from "../controllers/types";
 import { Dictionary } from "vue-router/types/router";
-import { INote } from "../interfaces/INote";
 
 @Component
 export default class NoteMixin extends Vue {
