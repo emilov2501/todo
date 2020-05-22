@@ -5,8 +5,8 @@
 
     <h1>Заметки</h1>
     <hr />
-    <div v-if="getNotes.length > 0">
-      <note-list :notes="getNotes" />
+    <div v-if="notes.length > 0">
+      <note-list :notes="notes" />
     </div>
 
     <div v-else>0 заметок</div>
@@ -28,6 +28,12 @@ import { mapGetters } from "vuex";
   }
 })
 export default class HomePage extends Vue {
+  getNotes!: any;
+
+  get notes() {
+    return Object.values(this.getNotes);
+  }
+
   toCreate() {
     const otherQuery: Dictionary<string> = {
       create: "true"

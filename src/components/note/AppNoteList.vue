@@ -9,8 +9,8 @@
         <app-note :note="note" />
         <app-todo-list :todos="note.todos" />
       </div>
-      <button @click="changeNote(note.id)">Изменить</button>
-      <button class="danger ml-1" @click="removeNote(note.id)">Удалить</button>
+      <button @click="change(note.id)">Изменить</button>
+      <button class="danger ml-1" @click="remove(note.id)">Удалить</button>
       <hr />
     </div>
   </div>
@@ -22,7 +22,8 @@ import AppNote from "./AppNote.vue";
 import AppTodoList from "../todo/AppTodoList.vue";
 import { INote } from "@/interfaces/INote";
 import { mapActions } from "vuex";
-import { Dictionary } from "vue-router/types/router";
+import { mixins } from "vue-class-component";
+import NoteMixin from "../../mixins/note.mixin";
 
 @Component({
   components: {
@@ -31,35 +32,11 @@ import { Dictionary } from "vue-router/types/router";
   },
   methods: {
     ...mapActions({
-      _removeNote: "_removeNote"
+      _remove: "_remove"
     })
   }
 })
-export default class NoteList extends Vue {
+export default class NoteList extends mixins(NoteMixin) {
   @Prop({ type: Array, default: [] }) notes!: INote[];
-  _removeNote!: any;
-
-  removeNote(noteId: number) {
-    const OK = confirm(`Вы точно хотите #${noteId}`);
-    if (OK) {
-      this._removeNote(noteId);
-    }
-  }
-
-  changeNote(noteId: string) {
-    const otherQuery: Dictionary<string> = {
-      change: "true"
-    };
-
-    const otherParams: Dictionary<string> = {
-      noteId: noteId
-    };
-
-    this.$router.push({
-      name: "ModifyNotePage",
-      params: otherParams,
-      query: otherQuery
-    });
-  }
 }
 </script>

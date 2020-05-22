@@ -2,7 +2,7 @@
   <div class="app-todo-list">
     <div class="todo-wrapper" v-if="todos.length > 0">
       <div class="todo-item" v-for="todo in todos" :key="todo.id">
-        <app-todo />
+        <app-todo :todo="todo" @remove-todo="$emit('remove-todo', $event)" />
       </div>
     </div>
     <h4 v-else>Задач пока нет</h4>

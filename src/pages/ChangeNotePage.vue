@@ -2,13 +2,14 @@
   <div class="page-change__note" v-if="note">
     <div class="note__title">
       <h1>
-        #{{ note.id }}: <span v-if="!isEdit">{{ note.title }}</span>
+        #{{ note.id }}:
+        <span v-if="!isEdit">{{ noteTitle }}</span>
         <input
           class="input__title"
           type="text"
           v-if="isEdit"
           :value="note.title"
-          @change="input"
+          @input="input"
         />
       </h1>
       <small class="event ml-1" @click="isEdit = !isEdit"
@@ -18,25 +19,37 @@
       >
     </div>
     <hr />
-    <app-todo-list :todos="note.todos" />
+    <app-todo-list :todos="note.todos" @remove-todo="removeTodo" />
+    <div>
+      <input type="text" class="mr-2" v-model="todoDescription" />
+      <small class="event" @click="addTodo">[Добавить задачу]</small>
+    </div>
     <hr />
     <br />
     <div class="options">
       <button @click="toBack">Отменить</button>
-      <button :disabled="!isEdit" class="ml-1 success" @click="saveChange">
+      <button class="ml-1 success" @click="saveChange">
         Сохранить изменении
       </button>
-      <button class="ml-1 danger" @click="removeNote">Удалить</button>
-      <button class="ml-1 danger" @click="_restoreNote">Вернуть</button>
+
+      <button class="ml-1 danger" @click="remove(noteId)">Удалить</button>
+      <button v-hotkey="keymap" class="ml-1 danger" @click="undo">
+        Вернуть
+      </button>
     </div>
+    <br />
+    <span v-if="loading">{{ loader }}</span>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
+import { mixins } from "vue-class-component";
+import AppTodoList from "@/components/todo/AppTodoList.vue";
+import { INote } from "@/interfaces/INote";
+import NoteMixin from "@/mixins/note.mixin";
+import TodoMixin from "@/mixins/todo.mixin";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { INote } from "../interfaces/INote";
-import AppTodoList from "../components/todo/AppTodoList.vue";
 
 @Component({
   components: {
@@ -44,60 +57,69 @@ import AppTodoList from "../components/todo/AppTodoList.vue";
   },
   computed: {
     ...mapGetters({
-      getNoteById: "getNoteById"
+      getNoteById: "getNoteById",
+      getNotes: "getNotes"
     })
   },
   methods: {
     ...mapActions({
       _saveChange: "_saveChange",
-      _removeNote: "_removeNote"
+      _remove: "_remove"
     }),
     ...mapMutations({
-      _restoreNote: "_restoreNote"
+      _restore: "setRestore"
     })
   }
 })
-export default class ChangeNotePage extends Vue {
+export default class ChangeNotePage extends mixins(NoteMixin, TodoMixin) {
   @Prop({ type: Number }) noteId!: number;
 
-  _restoreNote!: any;
+  // Store
   _saveChange!: any;
-  _removeNote!: any;
   getNoteById!: any;
 
+  // Data properties
   isEdit = false;
+  loading = false;
+  loader = "";
   title = "";
-  todos = [];
+  todoDescription = "";
 
-  input(e: any) {
-    this.title = e.target.value;
+  get noteTitle(): string {
+    return !this.note.title ? "Безымянный" : this.note.title;
   }
 
   get note(): INote {
     return this.getNoteById(this.noteId);
   }
 
+  get keymap() {
+    return {
+      "ctrl+z": this.undo,
+      "meta+z": this.undo
+    };
+  }
+
+  input(e: any): void {
+    this.title = e.target.value;
+  }
+
   saveChange(): void {
-    if (this.isEdit === false) return;
-    this._saveChange({
-      id: this.noteId,
-      title: this.title,
-      todos: this.todos
-    });
+    this.loading = true;
+    this.loader = "Идет сохранение...";
 
-    this.isEdit = false;
-  }
+    setTimeout(() => {
+      this._saveChange({
+        id: this.noteId,
+        title: this.title || this.noteTitle,
+        todos: this.note.todos
+      });
 
-  restoreNote(): void {
-    this._restoreNote();
-  }
+      this.loader = "Сохранено";
+      this.isEdit = false;
 
-  removeNote(): void {
-    const OK = confirm(`Вы точно хотите #${this.noteId}`);
-    if (OK) {
-      this._removeNote(this.noteId);
-      this.$router.go(-1);
-    }
+      setTimeout(() => (this.loading = false), 500);
+    }, 1000);
   }
 
   toBack(): void {

@@ -1,39 +1,52 @@
 import { NoteService } from "@/controllers/NoteController";
 import { ActionContext } from "vuex";
-import { RootState, State } from "vuex/types";
-import { INote } from "../../interfaces/INote";
+import { INote } from "@/interfaces/INote";
+import { IRootState } from "../types";
+
+interface INoteState {
+  data: NoteService;
+}
 
 const state = () => ({
   data: new NoteService()
 });
 
 const getters = {
-  getNotes: (state: State) => Object.values(state.data.notes),
-  getNoteById: (state: State) => (noteId: number) => state.data.notes[noteId]
+  getNotes: (state: INoteState) => state.data.getNotes,
+  getNoteById: (state: INoteState) => (noteId: number) =>
+    state.data.getNotes[noteId]
 };
 
 const mutations = {
-  setNote(state: State, payload: INote) {
+  setNote(state: INoteState, payload: INote) {
     state.data.createOrReplace(payload);
   },
 
-  setRemoveNoteById(state: State, payload: number) {
-    state.data.remove(payload);
+  setRemoveById(state: INoteState, payload: number) {
+    state.data.removeById(payload);
   },
 
-  setChange(state: State, payload: INote) {
+  /**
+   * Every change to set old state into backup
+   * @param state State
+   * @param payload INote
+   */
+  setChange(state: INoteState, payload: INote) {
     state.data.save(payload);
   },
 
-  _restoreNote(state: State) {
+  setRestore(state: INoteState) {
     state.data.restore();
   }
 };
 
 const actions = {
-  _createNote({ commit }: ActionContext<State, RootState>, title: string) {
+  _createNote(
+    { commit }: ActionContext<INoteState, IRootState>,
+    title: string
+  ) {
     const note: INote = {
-      id: NoteService.getRandomId(),
+      id: NoteService.generateId(),
       title,
       todos: []
     };
@@ -41,20 +54,25 @@ const actions = {
   },
 
   _saveChange(
-    { commit }: ActionContext<State, RootState>,
+    { commit }: ActionContext<INoteState, IRootState>,
     { id, title, todos }: INote
   ) {
     const data: INote = {
       id,
-      title: title,
+      title,
       todos
     };
 
     commit("setChange", data);
   },
 
-  _removeNote({ commit }: ActionContext<State, RootState>, noteId: number) {
-    commit("setRemoveNoteById", noteId);
+  _remove(
+    { getters, commit }: ActionContext<INoteState, IRootState>,
+    noteId: number
+  ) {
+    if (getters.getNotes[noteId]) {
+      commit("setRemoveById", noteId);
+    }
   }
 };
 

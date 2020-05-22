@@ -63,7 +63,10 @@ button {
   justify-content: space-between;
 }
 
-
+.event {
+  cursor: pointer;
+  color: blue
+}
 .todo-item {
   flex: 1
 }
@@ -76,10 +79,6 @@ button {
   position: relative;
   align-items: center;
   justify-content: space-between;
-  .event {
-    cursor: pointer;
-    color: blue
-  }
   h1 {
     margin: 0;
   }

@@ -1,12 +1,8 @@
 import LocalStorage from "@/utils/LocalStorage";
 
 export class BackupController<T> {
-  private value: T;
-
-  constructor(value: T, key: string) {
-    this.value = value;
-
-    this.saveTo(this.value, key);
+  constructor(snapshot: T, key: string) {
+    this.saveTo(snapshot, key);
   }
 
   public saveTo(value: T, key: string): void {
