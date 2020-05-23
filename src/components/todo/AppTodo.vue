@@ -5,7 +5,7 @@
         :disabled="!$route.query.change"
         type="checkbox"
         v-model="todo.isDone"
-        class="mr-1"
+        class="mr-1 checkbox"
       />
       <div class="options d-flex align-items-center">
         <span class="desc" v-if="!isEdit">{{ todo.description }}</span>
@@ -49,7 +49,8 @@ export default class AppTodo extends Vue {
   color: green
   .desc
     text-decoration: line-through
-
+.checkbox
+  width: 20px
 .app-todo
   display: flex;
   align-items: center

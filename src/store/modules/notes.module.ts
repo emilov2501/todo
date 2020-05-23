@@ -35,8 +35,8 @@ const mutations = {
     state.data.save(payload);
   },
 
-  setRestore(state: INoteState) {
-    state.data.restore();
+  setRestore(state: INoteState, noteId: number) {
+    state.data.restore(noteId);
   }
 };
 

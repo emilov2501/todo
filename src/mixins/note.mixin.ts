@@ -3,6 +3,7 @@ import { Component, Vue } from "vue-property-decorator";
 import LocalStorage from "@/utils/LocalStorage";
 import { BACKUP_NOTE_LIST } from "../controllers/types";
 import { Dictionary } from "vue-router/types/router";
+import { INote } from "../interfaces/INote";
 
 @Component
 export default class NoteMixin extends Vue {
@@ -39,11 +40,13 @@ export default class NoteMixin extends Vue {
   undo() {
     const backup = LocalStorage.getItem(BACKUP_NOTE_LIST, []);
 
-    if (backup.length <= 0) {
-      return alert("Backup is empty");
+    const backupById: INote[] = backup[this.noteId];
+
+    if (backupById.length <= 0) {
+      return alert(`Backup ${this.noteId} is empty`);
     }
 
-    this._restore();
+    this._restore(this.noteId);
   }
 
   change(noteId: string) {

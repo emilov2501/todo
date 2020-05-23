@@ -3,5 +3,5 @@ export interface INoteEntity {
   createOrReplace: (note: INote) => void;
   save: (note: INote) => void;
   removeById: (noteId: number) => void;
-  restore: () => void;
+  restore: (noteId: number) => void;
 }

@@ -51,12 +51,18 @@ export class NoteService implements INoteEntity {
   }
 
   /**
-   * repeat
+   * undo
    */
-  public restore(): void {
-    const backup = LocalStorage.getItem<[]>(BACKUP_NOTE_LIST, []);
-    const lastItem: INote | any = last(backup);
+  public restore(noteId: number): void {
+    const backup = LocalStorage.getItem(BACKUP_NOTE_LIST, {});
+    const currentNotes: INote[] = backup[noteId]; // Detect current value in backup
+    const lastItem: INote | any = last(currentNotes);
+
     this.createOrReplace(lastItem);
-    LocalStorage.setItem(BACKUP_NOTE_LIST, initial(backup));
+
+    LocalStorage.setItem(BACKUP_NOTE_LIST, {
+      ...backup,
+      [noteId]: initial(currentNotes)
+    });
   }
 }
